@@ -4,6 +4,7 @@ const runSequence = require('run-sequence');
 const open = require('gulp-open');
 const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
+const webserver = require('gulp-webserver')
 
 gulp.task('start', (done) => {
     const nodemon = exec('nodemon');
@@ -20,43 +21,45 @@ gulp.task('start', (done) => {
     nodemon.on('exit', (code) => console.log('start with code ' + code.toString()));
 });
 
+gulp.task('build-html', function(){
+    return gulp.src(['web/src/**/*.html'])
+            .pipe(gulp.dest('web/dist'));
+});
+
 gulp.task('build-web', () => {
-    return gulp.src('web/src/**/*.js')
+    return gulp.src('web/src/app/**/*.js')
         .pipe(sourcemaps.init())
         .pipe(babel({
             presets: ['es2015']
         }))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('web/dist'));
+        .pipe(gulp.dest('web/dist/app'));
 });
 
 gulp.task('start-web-server', (done) => {
-    exec('npm start', {
-        maxBuffer: 1024 * 5000
-    }, (err, stdout, stderr) => {
-        done(err);
-    });
-})
-
-gulp.task('open-web', () => {
-    gulp.src('./web/index.html')
-        .pipe(open({
-            uri: 'http://localhost:3232'
-        }));
+  gulp.src('web/dist')
+      .pipe(webserver({port: 3232, open: true}));
 });
 
 gulp.task('copy-libs', () => {
     return gulp.src([
+            'systemjs/dist/system.js',
+            'babel-polyfill/dist/polyfill.js',
             'bootstrap/**',
             'jquery/**'
         ], {
             cwd: 'node_modules/**'
         })
-        .pipe(gulp.dest('web/lib'));
+        .pipe(gulp.dest('web/dist/lib'));
 });
 
 gulp.task('start-web', (done) => {
-    runSequence('copy-libs', 'build-web','start-web-server', 'open-web', () => done());
+    runSequence(
+      'copy-libs',
+      'build-html',
+      'build-web',
+      'start-web-server',
+      () => done());
 });
 
 gulp.task('start-api-server', (done) => {
