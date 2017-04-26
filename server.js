@@ -26,9 +26,9 @@ app.use(bodyParser.json()); // for parsing application/x-www-form-urlencoded
 // Logs all requests to a console
 app.use(morgan('dev'));
 
-// All routes are here
+// API
 app.use('/api', api);
 
 app.listen('9999', (req, res) => {
-    console.log(`ELP server app listening on port 9999!`);
+    console.log(`gameofthree server app listening on port 9999`);
 })

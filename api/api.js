@@ -16,7 +16,12 @@ module.exports = (express) => {
 
     api.post('/init-player',  (req, res) => {
       const token = createToken(req);
-      // TODO
+
+      res.status(200).send({
+          success: true,
+          message: 'User ready',
+          token: token
+      });
     });
 
     // Middleware to verify token

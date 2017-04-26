@@ -1,2 +1,3 @@
-import { request } from './services.js';
-import { RegisterEventListener } from './events.js';
+import { start } from 'app/start-game.js';
+
+start();

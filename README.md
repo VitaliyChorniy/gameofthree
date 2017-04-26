@@ -13,12 +13,12 @@ npm install
 
 #### 2: Open console window and start API server
 ```
-gulp start-api-server
+gulp serve
 ```
 
 #### 4: Open second console window and start the game-app
 ```
-gulp start-web
+gulp start
 ```
 
 #### 5: each player should open http://localhost:3232/ to start the game

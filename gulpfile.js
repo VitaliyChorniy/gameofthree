@@ -6,7 +6,7 @@ const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
 const webserver = require('gulp-webserver')
 
-gulp.task('start', (done) => {
+gulp.task('serve', (done) => {
     const nodemon = exec('nodemon');
 
     nodemon.stdout.on('data', data => {
@@ -53,15 +53,11 @@ gulp.task('copy-libs', () => {
         .pipe(gulp.dest('web/dist/lib'));
 });
 
-gulp.task('start-web', (done) => {
+gulp.task('start', (done) => {
     runSequence(
       'copy-libs',
       'build-html',
       'build-web',
       'start-web-server',
       () => done());
-});
-
-gulp.task('start-api-server', (done) => {
-    runSequence('start', () => done());
 });

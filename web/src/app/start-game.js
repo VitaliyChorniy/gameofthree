@@ -1,10 +1,10 @@
-import { request } from 'services';
-import { RegisterEventListener } from 'events';
+import { request } from 'app/services.js';
+import { RegisterEventListener } from 'app/events.js';
 
 const startGame = () => {
   request({
     method: 'POST',
-    url: 'localhost:9999/api/init-player'
+    url: 'http://127.0.0.1:9999/api/init-player'
   }).then(data => {
       const response = JSON.parse(data);
       if (response.status = 'success') {
@@ -19,4 +19,8 @@ const startGame = () => {
   });
 }
 
-const startButton = new RegisterEventListener('start-btn', 'click', startGame);
+const start = () => {
+  new RegisterEventListener('start-btn', 'click', startGame);
+}
+
+export { start }
