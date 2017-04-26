@@ -1,0 +1,21 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+/node_modules
+/web/dist/**/*
+/web/lib/**/*
+npm-debug.log
+**/*.DS_Store
+
+# MSVS project files
+/obj
+*.csproj
+*.user
