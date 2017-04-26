@@ -1,7 +1,7 @@
 ## Usage -- Game Of Three --
 
-node.js should bw installed on your mashine
-gulp should bw installed globally on your mashine or call commands with:
+- node.js should be installed on your mashine
+- gulp should be installed globally on your mashine or call gulp commands from node_modules (after npm i):
 ```
 node_modules/gulp/bin/gulp.js start-api-server
 ```
