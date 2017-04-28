@@ -60,8 +60,24 @@ const showStartInput = () => {
   $('#startInput').removeClass('hide');
 }
 
+const hideStartInput = () => {
+  $('#startInput').addClass('hide');
+}
 const showWaitingForFirstPlayerToHit = () => {
   $('#waitingForFirstPlayerToHit').removeClass('hide');
+}
+
+const hideWaitingForFirstPlayerToHit = () => {
+  $('#waitingForFirstPlayerToHit').addClass('hide');
+}
+
+const getInitNumber = () => {
+  return $('#initNumberInput').val();
+}
+
+const showPlayerResponce = (number) => {
+  $('#nmrReceivedBlock').removeClass('hide');
+  $('#nmrReceived').html(number);
 }
 
 const hideAllSuccessMesseges = () => {
@@ -85,5 +101,10 @@ export {
   showLooseStatus,
   showWaitingForPlayerResponce,
   showStartInput,
-  showWaitingForFirstPlayerToHit
+  showWaitingForFirstPlayerToHit,
+  hideWaitingForFirstPlayerToHit,
+  getInitNumber,
+  hideStartInput,
+  showPlayerResponce,
+  hideWaitingForPlayerResponce
 };

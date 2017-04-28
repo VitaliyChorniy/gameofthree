@@ -1,4 +1,4 @@
-export const fetch = params => {
+export const request = params => {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open(params.method || 'GET', params.url);
@@ -15,6 +15,6 @@ export const fetch = params => {
             }
         };
         xhr.onerror = () => reject(xhr.statusText);
-        xhr.send(params.body);
+        xhr.send(JSON.stringify(params.body));
     });
 };

@@ -1,5 +1,5 @@
 import { API } from 'app/config.js';
-import { fetch } from 'app/request.js'
+import { request } from 'app/request.js'
 import {
   showRunServerStatus,
   showWaitingForPlayer,
@@ -11,12 +11,15 @@ import {
   hideWaitingForPlayerResponce,
   showPlayerResponce,
   showStartInput,
-  showWaitingForFirstPlayerToHit
+  hideStartInput,
+  showWaitingForFirstPlayerToHit,
+  hideWaitingForFirstPlayerToHit,
+  getInitNumber
 } from 'app/ui-controlls.js';
 
 function *pollAPI(apiUrl){
   while(true){
-    yield fetch ({
+    yield request ({
         url: apiUrl,
         method: 'POST'
       });
@@ -26,15 +29,18 @@ function *pollAPI(apiUrl){
 const pollForPlayerResponse = () => {
   const poller = pollAPI(API.playerResponce).next();
   poller.value.then((result) => {
-    if(result.waitingForPlayerResponce) {
-      showWaitingForPlayerResponce();
+    if(!result.playerResponce) {
       setTimeout(() => pollForPlayerResponse(), 3000);
     }
 
-    if(result.playerResponce) {
+    if(result.playerResponce  && result.playerResponce !== sessionStorage.getItem('gofInitNumber')) {
+      hideWaitingForFirstPlayerToHit();
       hideWaitingForPlayerResponce();
-      showPlayerResponce();
+      showPlayerResponce(result.playerResponce);
+    } else if (result.playerResponce){
+      showWaitingForPlayerResponce();
     }
+
     console.log(result);
   }).catch(() => {
     showErrServerStatus();
@@ -53,20 +59,22 @@ const pollStartGame = () => {
       hideWaitingForPlayer();
       showPlayerConnected();
       if(result.playerIdToStart === Number(sessionStorage.getItem('gofPlayerId'))) {
-        showStartInput()
+        showStartInput();
       } else {
         showWaitingForFirstPlayerToHit();
+        hideWaitingForPlayer();
+        pollForPlayerResponse();
       }
-      setTimeout(() => pollStartGame(), 3000);
     }
     console.log(result);
   }).catch(() => {
+    debugger;
     showErrServerStatus();
   });
 };
 
 const initGameAPI = () => {
-  fetch({
+  request({
     url: API.initPlayer,
     method: 'POST'
   }).then((result) => {
@@ -75,6 +83,7 @@ const initGameAPI = () => {
       showRunServerStatus();
       pollStartGame();
       savePlayerData(result);
+      registerSessionWatchers();
     }
   }).catch(() => {
     showErrServerStatus();
@@ -83,7 +92,6 @@ const initGameAPI = () => {
 
 const savePlayerData = (data) => {
   sessionStorage.setItem('gofPlayerId', data.playerId);
-  sessionStorage.setItem('gofPlayerToken', data.token);
 }
 
 const initPlayer = () => {
@@ -92,27 +100,60 @@ const initPlayer = () => {
 
 const makeInitialHit = (event) => {
   event.preventDefault();
-  console.log($('#initNumberInput').val())
+  const initNumber = getInitNumber();
+  sessionStorage.setItem('gofInitNumber', initNumber);
+
+  request ({
+      url: API.initGameNumber,
+      body: {
+        initNumber: initNumber
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST'
+    }).then(() => {
+      hideStartInput();
+      pollForPlayerResponse();
+    });
 }
 
-const makeMoveMinusOne = () => {
-  console.log('makeMoveMinusOne player');
+const makeMove = (element) => {
+  const value = $(element.target).attr('value');
+
+  return request ({
+      url: API.killSession,
+      body: {
+        value: value
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST'
+    }).then(() => pollForPlayerResponse())
 }
 
-const makeMoveZero = () => {
-  console.log('makeMoveZero player');
+const killSession = () => {
+  return request ({
+      url: API.killSession,
+      body: {
+        userId: sessionStorage.getItem('gofPlayerId')
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST'
+    });
 }
+const registerSessionWatchers = () => {
 
-const makeMovePlusOne = () => {
-  console.log('makeMovePlusOne player');
 }
 
 export {
   initPlayer,
-  makeMoveMinusOne,
-  makeMoveZero,
-  makeMovePlusOne,
-  makeInitialHit
+  makeMove,
+  makeInitialHit,
+  killSession
 }
 
 

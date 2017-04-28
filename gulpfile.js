@@ -5,21 +5,7 @@ const open = require('gulp-open');
 const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
 const webserver = require('gulp-webserver')
-
-gulp.task('serve', (done) => {
-    const nodemon = exec('nodemon');
-
-    nodemon.stdout.on('data', data => {
-        console.log('stdout: ' + data.toString());
-
-        // wait for nodemon to be ready to receive connections
-        if (data.toString().indexOf('Connected') >= 0) {
-            done();
-        }
-    });
-    nodemon.stderr.on('data', (data) => console.log('stderr: ' + data.toString()));
-    nodemon.on('exit', (code) => console.log('start with code ' + code.toString()));
-});
+const watch = require('gulp-watch');
 
 gulp.task('build-html', function(){
     return gulp.src(['web/src/**/*.html'])
@@ -38,7 +24,7 @@ gulp.task('build-web', () => {
 
 gulp.task('start-web-server', (done) => {
   gulp.src('web/dist')
-      .pipe(webserver({port: 3232, open: true}));
+      .pipe(webserver({port: 3232, open: true, livereload: true}));
 });
 
 gulp.task('copy-libs', () => {
@@ -53,11 +39,34 @@ gulp.task('copy-libs', () => {
         .pipe(gulp.dest('web/dist/lib'));
 });
 
+gulp.task('serve', (done) => {
+    const nodemon = exec('nodemon');
+
+    nodemon.stdout.on('data', data => {
+        console.log('stdout: ' + data.toString());
+
+        // wait for nodemon to be ready to receive connections
+        if (data.toString().indexOf('Connected') >= 0) {
+            done();
+        }
+    });
+    nodemon.stderr.on('data', (data) => console.log('stderr: ' + data.toString()));
+    nodemon.on('exit', (code) => console.log('start with code ' + code.toString()));
+});
+
+gulp.task('watch', (done) => {
+    watch('web/src/**/*.js', () => {
+      runSequence('build-html', 'build-web');
+    });
+    done();
+});
+
 gulp.task('start', (done) => {
     runSequence(
       'copy-libs',
       'build-html',
       'build-web',
+      'watch',
       'start-web-server',
       () => done());
 });

@@ -51,15 +51,17 @@
   </head>
   <body>
 
-    <div class="container text-center">
-      <h1>Game Of Three</h1>
+    <div class="container">
       <div class="row text-center">
-        <div class="alert alert-success alert-dismissible hide" role="alert" id="serverRun">Server Running</div>
-        <div class="alert alert-danger alert-dismissible hide" role="alert" id="serverDown">Server Down</div>
-        <div class="alert alert-success alert-dismissible hide" role="alert" id="playerConnected">Player Connected</div>
-        <div class="alert alert-danger alert-dismissible hide" role="alert" id="playerDisconected">Player Disconnected</div>
-        <div class="alert alert-success alert-dismissible hide" role="alert" id="youWon">You won the game</div>
-        <div class="alert alert-danger alert-dismissible hide" role="alert" id="youLost">You lost the game</div>
+        <h1>Game Of Three</h1>
+        <div class="row text-center">
+          <div class="alert alert-success alert-dismissible hide" role="alert" id="serverRun">Server Running</div>
+          <div class="alert alert-danger alert-dismissible hide" role="alert" id="serverDown">Server Down</div>
+          <div class="alert alert-success alert-dismissible hide" role="alert" id="playerConnected">Player Connected</div>
+          <div class="alert alert-danger alert-dismissible hide" role="alert" id="playerDisconected">Player Disconnected</div>
+          <div class="alert alert-success alert-dismissible hide" role="alert" id="youWon">You won the game</div>
+          <div class="alert alert-danger alert-dismissible hide" role="alert" id="youLost">You lost the game</div>
+        </div>
       </div>
       <div class="row text-center">
 
@@ -87,16 +89,16 @@
 
         <button class="btn btn-success btn-lg dropdown-toggle" type="button" id="startBtn">START</button>
         <br/>
-        <div class="row text-center" class="hide">
+        <div class="row text-center hide" id="nmrReceivedBlock">
           Number Received <span class="badge" id="nmrReceived"></span>
         </div>
         <br/>
         <div class="row text-center">
           <p>Your Move</p>
           <div class="btn-group-justified-lg" role="group" aria-label="...">
-            <button type="button" class="btn btn-default" id="btnMinusOne">-1</button>
-            <button type="button" class="btn btn-default" id="btnZero">0</button>
-            <button type="button" class="btn btn-default" id="btnPlusOne">1</button>
+            <button type="button" class="btn btn-default" value="-1" id="btnMinusOne">-1</button>
+            <button type="button" class="btn btn-default" value="0" id="btnZero">0</button>
+            <button type="button" class="btn btn-default" value="1" id="btnPlusOne">1</button>
           </div>
         </div>
       </div>

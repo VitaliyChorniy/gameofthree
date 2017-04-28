@@ -1,53 +1,46 @@
 const path = require('path');
 const fs = require('fs');
 const jsonwebtoken = require('jsonwebtoken');
-const players = [];
+let players = [];
 let id = 0;
 let waitingForPlayer = true;
 let secondPlayerReady = false;
-
-const  createToken = (req) => {
-    const token = jsonwebtoken.sign({
-    }, 'secretKey', {
-        expiresIn: '1h'
-    });
-
-    return token;
-}
+let gameData = {
+  number: null
+};
 
 module.exports = (express) => {
     const api = express.Router();
 
     api.post('/init-player',  (req, res) => {
-      const token = createToken(req);
-      let firstPlayer = false;
+      let isFirstPlayer = false;
       ++id;
       if (id === 1) {
-        firstPlayer = true;
+        isFirstPlayer = true;
       }
 
       players.push({
         id: id,
-        token: token,
-        firstPlayer: firstPlayer
+        isFirstPlayer: isFirstPlayer
       });
 
       res.status(200).send({
           playerId: id,
-          firstPlayer: firstPlayer,
-          connected: true,
-          token: token
+          isFirstPlayer: isFirstPlayer,
+          connected: true
       });
     });
 
     api.post('/start-game',  (req, res) => {
+      const isFirstPlayer = players.find(player => !!player.isFirstPlayer);
+
       if (players.length > 1) {
         waitingForPlayer = false;
         secondPlayerReady = true;
       }
 
       res.status(200).send({
-          playerIdToStart: players.find(player => !!player.firstPlayer).id,
+          playerIdToStart: isFirstPlayer ? isFirstPlayer.id : null,
           waitingForPlayer: waitingForPlayer,
           secondPlayerReady: secondPlayerReady,
           connected: true,
@@ -55,40 +48,49 @@ module.exports = (express) => {
     });
 
     api.post('/init-game-num', (req, res) => {
+      gameData.number = req.body.initNumber;
+
 
       res.status(200).send({
-          connected: true,
+          number: req.body.initNumber,
+          connected: true
       });
-    })
-
-    // Middleware to verify token
-    api.use((req, res, next) => {
-        const token = req.body.token || req.query.token || req.headers['x-access-token'];
-        if (token) {
-            jsonwebtoken.verify(token, secretKey, (err, decoded) => {
-                if (err) {
-                    res.status(403).send({
-                        success: false,
-                        message: "Failed to authrntificate user"
-                    });
-                } else {
-                    req.decoded = decoded;
-                    next();
-                }
-            });
-        } else {
-            res.status(403).send({
-                success: false,
-                message: "No Token Provided"
-            });
-        }
     });
 
-    api.post('/make-stroke', function (req, res) {
+    api.post('/end-session', (req, res) => {
+      const id = req.body.userId;
+      const playerIndex = players.findIndex(player => !!player.id === id).id;
+
+      players.splice(playerIndex, 1);
+
+      res.status(200).send({
+          success: true
+      });
+    });
+
+    api.post('/player-responce', (req, res) => {
+      res.status(200).send({
+          divisionResult: (gameData.number / 3),
+          playerResponce: gameData.number || null,
+          success: true
+      });
+    });
+
+    api.post('/make-hit', function (req, res) {
       // TODO receive number divide it by 3 check if result is 1
       // if 1 - send player win result another player loose result
       // if > 1 send second player the number
+      const actionNumber = req.body.value;
+
+      gameData.number = gameData.number + actionNumber;
+
+      res.status(200).send({
+          divisionResult: (gameData.number / 3),
+          playerResponce: gameData.number || null,
+          success: true
+      });
     });
+
 
     return api;
 }
