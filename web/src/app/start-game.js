@@ -1,26 +1,16 @@
-import { request } from 'app/services.js';
+import { initPlayer, makeMoveMinusOne, makeMoveZero, makeMovePlusOne, makeInitialHit } from 'app/api-connector.js';
 import { RegisterEventListener } from 'app/events.js';
 
-const startGame = () => {
-  request({
-    method: 'POST',
-    url: 'http://127.0.0.1:9999/api/init-player'
-  }).then(data => {
-      const response = JSON.parse(data);
-      if (response.status = 'success') {
-        document.getElementById('status').innerHTML = 'Active';
-        localStorage.setItem('token', response.token);
-      } else {
-        document.getElementById('status').innerHTML = 'Smth went wrong';
-      }
-
-  }).catch(error => {
-      console.log(error);
-  });
+const initEventListeners = () => {
+  new RegisterEventListener('startBtn', 'click', initPlayer);
+  new RegisterEventListener('btnMinusOne', 'click', makeMoveMinusOne);
+  new RegisterEventListener('btnZero', 'click', makeMoveZero);
+  new RegisterEventListener('btnPlusOne', 'click', makeMovePlusOne);
+  new RegisterEventListener('initNumberForm', 'submit', makeInitialHit);
 }
 
 const start = () => {
-  new RegisterEventListener('start-btn', 'click', startGame);
+  initEventListeners();
 }
 
 export { start }

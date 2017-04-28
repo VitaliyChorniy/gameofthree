@@ -1,13 +1,17 @@
 const path = require('path');
 const fs = require('fs');
 const jsonwebtoken = require('jsonwebtoken');
+const players = [];
+let id = 0;
+let waitingForPlayer = true;
+let secondPlayerReady = false;
 
 const  createToken = (req) => {
     const token = jsonwebtoken.sign({
-        id: req.TODO,
     }, 'secretKey', {
         expiresIn: '1h'
     });
+
     return token;
 }
 
@@ -16,13 +20,46 @@ module.exports = (express) => {
 
     api.post('/init-player',  (req, res) => {
       const token = createToken(req);
+      let firstPlayer = false;
+      ++id;
+      if (id === 1) {
+        firstPlayer = true;
+      }
+
+      players.push({
+        id: id,
+        token: token,
+        firstPlayer: firstPlayer
+      });
 
       res.status(200).send({
-          success: true,
-          message: 'User ready',
+          playerId: id,
+          firstPlayer: firstPlayer,
+          connected: true,
           token: token
       });
     });
+
+    api.post('/start-game',  (req, res) => {
+      if (players.length > 1) {
+        waitingForPlayer = false;
+        secondPlayerReady = true;
+      }
+
+      res.status(200).send({
+          playerIdToStart: players.find(player => !!player.firstPlayer).id,
+          waitingForPlayer: waitingForPlayer,
+          secondPlayerReady: secondPlayerReady,
+          connected: true,
+      });
+    });
+
+    api.post('/init-game-num', (req, res) => {
+
+      res.status(200).send({
+          connected: true,
+      });
+    })
 
     // Middleware to verify token
     api.use((req, res, next) => {

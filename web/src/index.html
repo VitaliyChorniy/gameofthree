@@ -26,13 +26,81 @@
 
        System.import('app/app.js').then(null, console.error.bind(console));
       </script>
+      <style>
+      .loader {
+          border: 8px solid #f3f3f3;
+          border-radius: 50%;
+          border-top: 8px solid #3498db;
+          width: 50px;
+          height: 50px;
+          -webkit-animation: spin 2s linear infinite;
+          animation: spin 2s linear infinite;
+          margin: auto;
+        }
 
+      @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      </style>
   </head>
   <body>
-    <h1>Game Of Three</h1>
 
-    <div id="status"></div>
-    <button id="start-btn">start</button>
+    <div class="container text-center">
+      <h1>Game Of Three</h1>
+      <div class="row text-center">
+        <div class="alert alert-success alert-dismissible hide" role="alert" id="serverRun">Server Running</div>
+        <div class="alert alert-danger alert-dismissible hide" role="alert" id="serverDown">Server Down</div>
+        <div class="alert alert-success alert-dismissible hide" role="alert" id="playerConnected">Player Connected</div>
+        <div class="alert alert-danger alert-dismissible hide" role="alert" id="playerDisconected">Player Disconnected</div>
+        <div class="alert alert-success alert-dismissible hide" role="alert" id="youWon">You won the game</div>
+        <div class="alert alert-danger alert-dismissible hide" role="alert" id="youLost">You lost the game</div>
+      </div>
+      <div class="row text-center">
+
+        <div id="waitingForPlayer" class="hide">
+          Waiting for player to join us <div class="loader"></div>
+        </div>
+
+        <div id="waitingForPlayerResponce" class="hide">
+          Waiting for player make the move <div class="loader"></div>
+        </div>
+
+        <div id="waitingForFirstPlayerToHit" class="hide">
+          Waiting first Player to start <div class="loader"></div>
+        </div>
+
+        <div id="startInput" class="hide">
+          <form class="form-inline" id="initNumberForm">
+            Enter a whole number to start the game
+            <div class="form-group">
+              <input type="number" class="form-control" id="initNumberInput" placeholder="0">
+            </div>
+            <button type="submit" class="btn btn-default">Go</button>
+          </form>
+        </div>
+
+        <button class="btn btn-success btn-lg dropdown-toggle" type="button" id="startBtn">START</button>
+        <br/>
+        <div class="row text-center" class="hide">
+          Number Received <span class="badge" id="nmrReceived"></span>
+        </div>
+        <br/>
+        <div class="row text-center">
+          <p>Your Move</p>
+          <div class="btn-group-justified-lg" role="group" aria-label="...">
+            <button type="button" class="btn btn-default" id="btnMinusOne">-1</button>
+            <button type="button" class="btn btn-default" id="btnZero">0</button>
+            <button type="button" class="btn btn-default" id="btnPlusOne">1</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="lib/jquery/dist/jquery.min.js"></script>
     <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>

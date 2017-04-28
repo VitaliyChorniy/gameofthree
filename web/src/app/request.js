@@ -1,4 +1,4 @@
-const request = params => {
+export const fetch = params => {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open(params.method || 'GET', params.url);
@@ -9,7 +9,7 @@ const request = params => {
         }
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
-                resolve(xhr.response);
+                resolve(JSON.parse(xhr.response));
             } else {
                 reject(xhr.statusText);
             }
@@ -18,5 +18,3 @@ const request = params => {
         xhr.send(params.body);
     });
 };
-
-export { request };
