@@ -9,7 +9,6 @@ import {
     RegisterKillSessionListener
 } from 'app/events.js';
 import {
-    initRandomizer,
     playRandomly
 } from 'app/randomizer.js';
 

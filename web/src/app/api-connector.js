@@ -45,7 +45,7 @@ function* pollAPI(apiUrl) {
             number: Number(sessionStorage.getItem('GOTnumber'))
         });
     }
-};
+}
 
 /*
  * Initialize player
