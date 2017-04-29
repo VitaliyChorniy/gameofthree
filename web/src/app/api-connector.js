@@ -1,178 +1,245 @@
-import { API } from 'app/config.js';
-import { request } from 'app/request.js'
 import {
-  showRunServerStatus,
-  showWaitingForPlayer,
-  showPlayerConnected,
-  hideStartBtn,
-  hideWaitingForPlayer,
-  showErrServerStatus,
-  showWaitingForPlayerResponce,
-  hideWaitingForPlayerResponce,
-  showPlayerResponce,
-  showStartInput,
-  hideStartInput,
-  showWaitingForFirstPlayerToHit,
-  hideWaitingForFirstPlayerToHit,
-  getInitNumber
+    API
+} from 'app/config.js';
+import {
+    request
+} from 'app/request.js'
+import {
+    showRunServerStatus,
+    showWaitingForPlayer,
+    showPlayerConnected,
+    hideStartBtn,
+    hideWaitingForPlayer,
+    showErrServerStatus,
+    showWaitingForPlayerResponce,
+    hideWaitingForPlayerResponce,
+    showPlayerResponce,
+    showStartInput,
+    hideStartInput,
+    showWaitingForFirstPlayerToHit,
+    hideWaitingForFirstPlayerToHit,
+    getInitNumber,
+    showMoveControllsBlock,
+    hideMoveControllsBlock,
+    hidePlayerResponce,
+    showLooseStatus,
+    showWinStatus,
+    hidePlayerConnected,
+    getMoveValue
 } from 'app/ui-controlls.js';
 
-function *pollAPI(apiUrl){
-  while(true){
-    yield request ({
-        url: apiUrl,
-        method: 'POST'
-      });
-  }
-}
+const CALL_INTERVAL = 3000;
+let waitingForFirstPlayer = false;
 
-const pollForPlayerResponse = () => {
-  const poller = pollAPI(API.playerResponce).next();
-  poller.value.then((result) => {
-    if(!result.playerResponce) {
-      setTimeout(() => pollForPlayerResponse(), 3000);
+function* pollAPI(apiUrl) {
+    while (true) { // eslint-disable-line
+        yield request({
+            url: apiUrl,
+            method: 'POST',
+            number: Number(sessionStorage.getItem('GOTnumber'))
+        });
     }
-
-    if(result.playerResponce  && result.playerResponce !== sessionStorage.getItem('gofInitNumber')) {
-      hideWaitingForFirstPlayerToHit();
-      hideWaitingForPlayerResponce();
-      showPlayerResponce(result.playerResponce);
-    } else if (result.playerResponce){
-      showWaitingForPlayerResponce();
-    }
-
-    console.log(result);
-  }).catch(() => {
-    showErrServerStatus();
-  });
 };
 
-const pollStartGame = () => {
-  const poller = pollAPI(API.startGame).next();
-  poller.value.then((result) => {
-    if(result.waitingForPlayer) {
-      showWaitingForPlayer();
-      setTimeout(() => pollStartGame(), 3000);
-    }
-
-    if(result.secondPlayerReady) {
-      hideWaitingForPlayer();
-      showPlayerConnected();
-      if(result.playerIdToStart === Number(sessionStorage.getItem('gofPlayerId'))) {
-        showStartInput();
-      } else {
-        showWaitingForFirstPlayerToHit();
-        hideWaitingForPlayer();
-        pollForPlayerResponse();
-      }
-    }
-    console.log(result);
-  }).catch(() => {
-    debugger;
-    showErrServerStatus();
-  });
-};
-
-const initGameAPI = () => {
-  request({
-    url: API.initPlayer,
-    method: 'POST'
-  }).then((result) => {
-    if (result.connected) {
-      hideStartBtn();
-      showRunServerStatus();
-      pollStartGame();
-      savePlayerData(result);
-      registerSessionWatchers();
-    }
-  }).catch(() => {
-    showErrServerStatus();
-  });
-}
-
-const savePlayerData = (data) => {
-  sessionStorage.setItem('gofPlayerId', data.playerId);
-}
-
+/*
+ * Initialize player
+ */
 const initPlayer = () => {
-  initGameAPI();
-}
+    initGameAPI();
+};
 
+/*
+ * Initialize Player, on sucess:
+ * - Hide start button
+ * - Show server running message
+ * - Start pollig Game Start
+ * - save player data received from API
+ */
+const initGameAPI = () => {
+    request({
+        url: API.initPlayer,
+        method: 'POST'
+    }).then((result) => {
+        if (result.connected) {
+            hideStartBtn();
+            showRunServerStatus();
+            pollStartGame();
+            savePlayerData(result);
+        }
+    }).catch(() => showErrServerStatus());
+};
+
+/*
+ * Poll api for starting the game
+ */
+const pollStartGame = () => {
+    const poller = pollAPI(API.startGame).next();
+
+    poller.value.then((result) => {
+        // if 2nd player is not ready yet
+        if (result.waitingForPlayer) {
+            showWaitingForPlayer();
+            setTimeout(() => pollStartGame(), CALL_INTERVAL);
+        }
+
+        // if seconda player is ready
+        if (result.secondPlayerReady) {
+            hideWaitingForPlayer();
+            showPlayerConnected();
+            hidePlayerConnected();
+            // if current player is the player who starts the game (enter number)
+            // else wait for second player to make his hit by polling pollForPlayerResponse
+            if (result.playerIdToStart === Number(sessionStorage.getItem('GOTPlayerId'))) {
+                showStartInput();
+            } else {
+                waitingForFirstPlayer = true;
+                showWaitingForFirstPlayerToHit();
+                hideWaitingForPlayerResponce();
+                hideWaitingForPlayer();
+                pollForPlayerResponse(true);
+            }
+        }
+    }).catch(() => showErrServerStatus());
+};
+
+/*
+ * Poll API for player responce
+ */
+const pollForPlayerResponse = () => {
+    const poller = pollAPI(API.playerResponce).next();
+    poller.value.then((result) => {
+        // 0 means that the player lost
+        if (result.playerResponce === 0) {
+            hideWaitingForPlayerResponce();
+            showLooseStatus();
+            return;
+        }
+        // if no responce number - poll API
+        if (!result.playerResponce) {
+            if (!waitingForFirstPlayer) {
+                showWaitingForPlayerResponce();
+            }
+            setTimeout(() => pollForPlayerResponse(), CALL_INTERVAL);
+        } else {
+            // if no number saved, save number received from other user
+            // show controlls for current player to make hit
+            if (!Number(sessionStorage.getItem('GOTnumber'))) {
+                waitingForFirstPlayer = false;
+                sessionStorage.setItem('GOTnumber', result.playerResponce);
+                hideWaitingForFirstPlayerToHit();
+                hideWaitingForPlayerResponce();
+                showPlayerResponce(result.playerResponce);
+                showMoveControllsBlock();
+                return;
+            }
+            // if the number is not changed - wait for change
+            if (Number(sessionStorage.getItem('GOTnumber')) === result.playerResponce) {
+                showWaitingForPlayerResponce();
+                setTimeout(() => pollForPlayerResponse(), CALL_INTERVAL);
+                return;
+            }
+
+            // if number changed - save it and wait for user action
+            // show controlls for current player to make hit
+            if (Number(sessionStorage.getItem('GOTnumber')) !== result.playerResponce) {
+                sessionStorage.setItem('GOTnumber', result.playerResponce);
+                hideWaitingForFirstPlayerToHit();
+                hideWaitingForPlayerResponce();
+                showPlayerResponce(result.playerResponce);
+                showMoveControllsBlock();
+                return;
+            }
+        }
+
+    }).catch(() => showErrServerStatus());
+};
+
+/*
+ * Save user data
+ */
+const savePlayerData = (data) => {
+    sessionStorage.setItem('GOTPlayerId', data.playerId);
+};
+
+/*
+ * Call API for initializing the game with number from input
+ * - on success: hide input, poll for responce
+ */
 const makeInitialHit = (event) => {
-  event.preventDefault();
-  const initNumber = getInitNumber();
-  sessionStorage.setItem('gofInitNumber', initNumber);
+    event.preventDefault();
+    const initNumber = getInitNumber();
 
-  request ({
-      url: API.initGameNumber,
-      body: {
-        initNumber: initNumber
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST'
+    sessionStorage.setItem('GOTnumber', initNumber);
+
+    request({
+        url: API.initGameNumber,
+        body: {
+            initNumber: initNumber
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method: 'POST'
     }).then(() => {
-      hideStartInput();
-      pollForPlayerResponse();
+        hideStartInput();
+        pollForPlayerResponse();
     });
-}
+};
 
-const makeMove = (element) => {
-  const value = $(element.target).attr('value');
+/*
+ * Make  hit
+ * @param {object} click event
+ */
+const makeMove = (event) => {
+    const value = getMoveValue(event.target);
 
-  return request ({
-      url: API.killSession,
-      body: {
-        value: value
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST'
-    }).then(() => pollForPlayerResponse())
-}
+    return request({
+        url: API.makeHit,
+        body: {
+            value: value
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method: 'POST'
+    }).then(result => {
+        // end game is server send playerWon=true
+        if (result.playerWon) {
+            hidePlayerResponce();
+            hideMoveControllsBlock();
+            showWinStatus();
+            return;
+        }
+        sessionStorage.setItem('GOTnumber', result.playerResponce);
+        hidePlayerResponce();
+        hideMoveControllsBlock();
+        pollForPlayerResponse();
+    });
+};
 
+/*
+ * Call server to remove players data
+ * Clear sessionStorage
+ */
 const killSession = () => {
-  return request ({
-      url: API.killSession,
-      body: {
-        userId: sessionStorage.getItem('gofPlayerId')
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST'
-    });
-}
-const registerSessionWatchers = () => {
+    sessionStorage.removeItem('GOTnumber');
+    sessionStorage.removeItem('GOTPlayerId');
 
-}
+    return request({
+        url: API.killSession,
+        body: {
+            userId: sessionStorage.getItem('GOTPlayerId')
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method: 'POST'
+    });
+};
 
 export {
-  initPlayer,
-  makeMove,
-  makeInitialHit,
-  killSession
+    initPlayer,
+    makeMove,
+    makeInitialHit,
+    killSession
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-// export { request };

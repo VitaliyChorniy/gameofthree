@@ -1,3 +1,5 @@
-import { start } from 'app/start-game.js';
+import {
+    start
+} from 'app/start-game.js';
 
 start();

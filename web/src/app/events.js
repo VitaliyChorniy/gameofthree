@@ -1,3 +1,5 @@
+/* global $ */
+
 export class RegisterEventListener {
     constructor(id, event, callBack) {
         this.callBack = callBack;
@@ -6,8 +8,8 @@ export class RegisterEventListener {
     }
 }
 
-export const RegisterKillSessionListener = (sessionKillFunc) =>{
-  window.onbeforeunload = sessionKillFunc;
-  window.onunload = sessionKillFunc;
-  $('window').bind('beforeunload', () => sessionKillFunc());
+export const RegisterKillSessionListener = (sessionKillFunc) => {
+    window.onbeforeunload = sessionKillFunc;
+    window.onunload = sessionKillFunc;
+    $('window').bind('beforeunload', () => sessionKillFunc());
 }

@@ -29,6 +29,6 @@ app.use(morgan('dev'));
 // API
 app.use('/api', api);
 
-app.listen('9999', (req, res) => {
-    console.log(`gameofthree server app listening on port 9999`);
+app.listen('3131', (req, res) => {
+    console.log(`gameofthree server app listening on port 3131`);
 })

@@ -4,6 +4,8 @@
   "description": "gameOfThree",
   "main": "server.js",
   "scripts": {
+    "lint": "gulp tslint",
+    "gulp": "gulp",
     "start": ""
   },
   "repository": {
@@ -21,7 +23,6 @@
     "express": "^4.14.1",
     "gulp": "^3.9.1",
     "jquery": "^3.2.1",
-    "jsonwebtoken": "^7.3.0",
     "morgan": "^1.8.1",
     "systemjs": "^0.20.12"
   },
@@ -30,11 +31,15 @@
     "cors": "^2.8.1",
     "express": "^4.15.2",
     "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1",
     "gulp-open": "^2.0.0",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-watch": "^4.3.11",
     "gulp-webserver": "^0.9.1",
     "nodemon": "^1.11.0",
     "run-sequence": "^1.2.2"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }

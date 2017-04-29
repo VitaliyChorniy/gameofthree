@@ -1,110 +1,129 @@
+/* global $ */
+
 const HIDE_MSG_SEC = 5000;
 
 const showRunServerStatus = () => {
-  $('#serverRun').removeClass('hide');
-  setTimeout(() => {
-      $('#serverRun').addClass('hide');
-  }, HIDE_MSG_SEC);
+    $('#serverRun').removeClass('hide');
+    setTimeout(() => {
+        $('#serverRun').addClass('hide');
+    }, HIDE_MSG_SEC);
 }
 
 const hideStartBtn = () => {
-  $('#startBtn').addClass('hide');
-}
-
-const hideRunServerStatus = () => {
-
+    $('#startBtn').addClass('hide');
 }
 
 const showErrServerStatus = () => {
-  $('#serverDown').removeClass('hide');
-  hideAllSuccessMesseges()
+    $('#serverDown').removeClass('hide');
+    hideAllSuccessMesseges()
 }
 
 const hideErrServerStatus = () => {
-
+    $('#serverDown').addClass('hide');
 }
 
 const showWaitingForPlayer = () => {
-  $('#waitingForPlayer').removeClass('hide');
+    $('#waitingForPlayer').removeClass('hide');
 }
 
 const hideWaitingForPlayer = () => {
-  $('#waitingForPlayer').addClass('hide');
+    $('#waitingForPlayer').addClass('hide');
 }
 
 const showPlayerConnected = () => {
-  $('#playerConnected').removeClass('hide');
+    $('#playerConnected').removeClass('hide');
 }
 
-const showPlayerDisconected = () => {
-
+const hidePlayerConnected = () => {
+    setTimeout(() => {
+        $('#playerConnected').addClass('hide');
+    }, HIDE_MSG_SEC);
 }
 
 const showWinStatus = () => {
-
+    $('#youWon').removeClass('hide');
 }
 
 const showLooseStatus = () => {
-
+    $('#youLost').removeClass('hide');
 }
 
 const showWaitingForPlayerResponce = () => {
-  $('#waitingForPlayerResponce').removeClass('hide');
+    $('#waitingForPlayerResponce').removeClass('hide');
 }
 
 const hideWaitingForPlayerResponce = () => {
-  $('#waitingForPlayerResponce').addClass('hide');
+    $('#waitingForPlayerResponce').addClass('hide');
 }
 
 const showStartInput = () => {
-  $('#startInput').removeClass('hide');
+    $('#startInput').removeClass('hide');
 }
 
 const hideStartInput = () => {
-  $('#startInput').addClass('hide');
+    $('#startInput').addClass('hide');
 }
 const showWaitingForFirstPlayerToHit = () => {
-  $('#waitingForFirstPlayerToHit').removeClass('hide');
+    $('#waitingForFirstPlayerToHit').removeClass('hide');
 }
 
 const hideWaitingForFirstPlayerToHit = () => {
-  $('#waitingForFirstPlayerToHit').addClass('hide');
+    $('#waitingForFirstPlayerToHit').addClass('hide');
 }
 
 const getInitNumber = () => {
-  return $('#initNumberInput').val();
+    return Number($('#initNumberInput').val());
 }
 
 const showPlayerResponce = (number) => {
-  $('#nmrReceivedBlock').removeClass('hide');
-  $('#nmrReceived').html(number);
+    $('#nmrReceivedBlock').removeClass('hide');
+    $('#nmrReceived').html(number);
+}
+
+const hidePlayerResponce = () => {
+    $('#nmrReceivedBlock').addClass('hide');
+
 }
 
 const hideAllSuccessMesseges = () => {
-  $('#waitingForPlayer').addClass('hide');
-  $('#serverRun').addClass('hide');
-  $('#playerConnected').addClass('hide');
-  $('#waitingForPlayer').addClass('hide');
+    $('#waitingForPlayer').addClass('hide');
+    $('#serverRun').addClass('hide');
+    $('#playerConnected').addClass('hide');
+    $('#waitingForPlayer').addClass('hide');
 }
 
+const showMoveControllsBlock = () => {
+    $('#moveControllsBlock').removeClass('hide');
+}
+
+const hideMoveControllsBlock = () => {
+    $('#moveControllsBlock').addClass('hide');
+}
+
+const getMoveValue = element => {
+    return $(element).attr('value')
+}
 export {
-  showRunServerStatus,
-  hideStartBtn,
-  hideRunServerStatus,
-  showErrServerStatus,
-  hideErrServerStatus,
-  showWaitingForPlayer,
-  hideWaitingForPlayer,
-  showPlayerConnected,
-  showPlayerDisconected,
-  showWinStatus,
-  showLooseStatus,
-  showWaitingForPlayerResponce,
-  showStartInput,
-  showWaitingForFirstPlayerToHit,
-  hideWaitingForFirstPlayerToHit,
-  getInitNumber,
-  hideStartInput,
-  showPlayerResponce,
-  hideWaitingForPlayerResponce
+    showRunServerStatus,
+    hideStartBtn,
+    showErrServerStatus,
+    hideErrServerStatus,
+    showWaitingForPlayer,
+    hideWaitingForPlayer,
+    showPlayerConnected,
+    hidePlayerConnected,
+    showWinStatus,
+    showLooseStatus,
+    showWaitingForPlayerResponce,
+    showStartInput,
+    showWaitingForFirstPlayerToHit,
+    hideWaitingForFirstPlayerToHit,
+    getInitNumber,
+    hideStartInput,
+    showPlayerResponce,
+    hidePlayerResponce,
+    hideWaitingForPlayerResponce,
+    showMoveControllsBlock,
+    hideMoveControllsBlock,
+    getMoveValue
 };

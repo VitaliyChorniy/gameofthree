@@ -1,94 +1,94 @@
-const path = require('path');
-const fs = require('fs');
-const jsonwebtoken = require('jsonwebtoken');
+/* global module */
+
 let players = [];
 let id = 0;
 let waitingForPlayer = true;
 let secondPlayerReady = false;
 let gameData = {
-  number: null
+    number: null
 };
 
 module.exports = (express) => {
     const api = express.Router();
 
-    api.post('/init-player',  (req, res) => {
-      let isFirstPlayer = false;
-      ++id;
-      if (id === 1) {
-        isFirstPlayer = true;
-      }
+    // initalize player data and save to players array
+    api.post('/init-player', (req, res) => {
+        let isFirstPlayer = false;
+        ++id;
+        if (id === 1) {
+            isFirstPlayer = true;
+        }
 
-      players.push({
-        id: id,
-        isFirstPlayer: isFirstPlayer
-      });
+        players.push({
+            id: id,
+            isFirstPlayer: isFirstPlayer
+        });
 
-      res.status(200).send({
-          playerId: id,
-          isFirstPlayer: isFirstPlayer,
-          connected: true
-      });
+        res.status(200).send({
+            playerId: id,
+            isFirstPlayer: isFirstPlayer,
+            connected: true
+        });
     });
 
-    api.post('/start-game',  (req, res) => {
-      const isFirstPlayer = players.find(player => !!player.isFirstPlayer);
+    api.post('/start-game', (req, res) => {
+        const isFirstPlayer = players.find(player => !!player.isFirstPlayer);
 
-      if (players.length > 1) {
-        waitingForPlayer = false;
-        secondPlayerReady = true;
-      }
+        if (players.length > 1) {
+            waitingForPlayer = false;
+            secondPlayerReady = true;
+        }
 
-      res.status(200).send({
-          playerIdToStart: isFirstPlayer ? isFirstPlayer.id : null,
-          waitingForPlayer: waitingForPlayer,
-          secondPlayerReady: secondPlayerReady,
-          connected: true,
-      });
+        res.status(200).send({
+            playerIdToStart: isFirstPlayer ? isFirstPlayer.id : null,
+            waitingForPlayer: waitingForPlayer,
+            secondPlayerReady: secondPlayerReady,
+            connected: true,
+        });
     });
 
     api.post('/init-game-num', (req, res) => {
-      gameData.number = req.body.initNumber;
+        gameData.number = req.body.initNumber;
 
-
-      res.status(200).send({
-          number: req.body.initNumber,
-          connected: true
-      });
+        res.status(200).send({
+            number: req.body.initNumber,
+            connected: true
+        });
     });
 
     api.post('/end-session', (req, res) => {
-      const id = req.body.userId;
-      const playerIndex = players.findIndex(player => !!player.id === id).id;
+        players = [];
 
-      players.splice(playerIndex, 1);
-
-      res.status(200).send({
-          success: true
-      });
+        res.status(200).send({
+            success: true
+        });
     });
 
     api.post('/player-responce', (req, res) => {
-      res.status(200).send({
-          divisionResult: (gameData.number / 3),
-          playerResponce: gameData.number || null,
-          success: true
-      });
+        res.status(200).send({
+            playerResponce: gameData.number,
+            success: true
+        });
     });
 
     api.post('/make-hit', function (req, res) {
-      // TODO receive number divide it by 3 check if result is 1
-      // if 1 - send player win result another player loose result
-      // if > 1 send second player the number
-      const actionNumber = req.body.value;
+        const actionNumber = req.body.value;
+        let playerWon = false;
 
-      gameData.number = gameData.number + actionNumber;
+        gameData.number = Math.round((Number(gameData.number) + Number(actionNumber)) / 3);
 
-      res.status(200).send({
-          divisionResult: (gameData.number / 3),
-          playerResponce: gameData.number || null,
-          success: true
-      });
+        // if result is 1 - it means that the player has webkit-animation
+        // - sent the player win status
+        // - save 0 under number, which will mean for the other player that he/she lost
+        if (gameData.number === 1) {
+            playerWon = true;
+            gameData.number = 0;
+        }
+        res.status(200).send({
+            playerResponce: gameData.number,
+            success: true,
+            playerWon: playerWon
+        });
     });
 
 

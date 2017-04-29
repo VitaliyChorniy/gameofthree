@@ -6,10 +6,11 @@ const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
 const webserver = require('gulp-webserver')
 const watch = require('gulp-watch');
+const eslint = require('gulp-eslint');
 
-gulp.task('build-html', function(){
+gulp.task('build-html', () => {
     return gulp.src(['web/src/**/*.html'])
-            .pipe(gulp.dest('web/dist'));
+        .pipe(gulp.dest('web/dist'));
 });
 
 gulp.task('build-web', () => {
@@ -23,8 +24,12 @@ gulp.task('build-web', () => {
 });
 
 gulp.task('start-web-server', (done) => {
-  gulp.src('web/dist')
-      .pipe(webserver({port: 3232, open: true, livereload: true}));
+    gulp.src('web/dist')
+        .pipe(webserver({
+            port: 3232,
+            open: true,
+            livereload: true
+        }));
 });
 
 gulp.task('copy-libs', () => {
@@ -54,19 +59,27 @@ gulp.task('serve', (done) => {
     nodemon.on('exit', (code) => console.log('start with code ' + code.toString()));
 });
 
+
+gulp.task('lint', () => {
+    return gulp.src(['web/src/app/**/*.js', 'api/**/*.js', '!node_modules/**'])
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
+});
+
 gulp.task('watch', (done) => {
     watch('web/src/**/*.js', () => {
-      runSequence('build-html', 'build-web');
+        runSequence('build-html', 'build-web');
     });
     done();
 });
 
 gulp.task('start', (done) => {
     runSequence(
-      'copy-libs',
-      'build-html',
-      'build-web',
-      'watch',
-      'start-web-server',
-      () => done());
+        'copy-libs',
+        'build-html',
+        'build-web',
+        'watch',
+        'start-web-server',
+        () => done());
 });
