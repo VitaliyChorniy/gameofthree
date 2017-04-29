@@ -11,7 +11,7 @@ let gameData = {
 module.exports = (express) => {
     const api = express.Router();
 
-    // initalize player data and save to players array
+    // initalize player data and save to players arrayщ
     api.post('/init-player', (req, res) => {
         let isFirstPlayer = false;
         ++id;
@@ -77,7 +77,7 @@ module.exports = (express) => {
 
         gameData.number = Math.round((Number(gameData.number) + Number(actionNumber)) / 3);
 
-        // if result is 1 - it means that the player has webkit-animation
+        // if result is 1 - it means that the player has won
         // - sent the player win status
         // - save 0 under number, which will mean for the other player that he/she lost
         if (gameData.number === 1) {

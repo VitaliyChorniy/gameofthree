@@ -8,6 +8,10 @@ import {
     RegisterEventListener,
     RegisterKillSessionListener
 } from 'app/events.js';
+import {
+    initRandomizer,
+    playRandomly
+} from 'app/randomizer.js';
 
 const initEventListeners = () => {
     new RegisterEventListener('startBtn', 'click', initPlayer);
@@ -15,6 +19,7 @@ const initEventListeners = () => {
     new RegisterEventListener('btnZero', 'click', makeMove);
     new RegisterEventListener('btnPlusOne', 'click', makeMove);
     new RegisterEventListener('initNumberForm', 'submit', makeInitialHit);
+    new RegisterEventListener('startRandom', 'click', playRandomly);
     RegisterKillSessionListener(killSession);
 }
 

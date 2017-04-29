@@ -103,6 +103,25 @@ const hideMoveControllsBlock = () => {
 const getMoveValue = element => {
     return $(element).attr('value')
 }
+
+const hideRandomBtn = () => {
+    $('#startRandom').addClass('hide');
+}
+
+const showRandomBtn = () => {
+    $('#startRandom').removeClass('hide');
+}
+
+const disableMoveButtons = () => {
+    $('#btnMinusOne').addClass('disabled');
+    $('#btnZero').addClass('disabled');
+    $('#btnPlusOne').addClass('disabled');
+}
+
+const triggerClickById = id => {
+    $(`#${id}`).trigger('click');
+}
+
 export {
     showRunServerStatus,
     hideStartBtn,
@@ -125,5 +144,9 @@ export {
     hideWaitingForPlayerResponce,
     showMoveControllsBlock,
     hideMoveControllsBlock,
-    getMoveValue
+    getMoveValue,
+    disableMoveButtons,
+    triggerClickById,
+    hideRandomBtn,
+    showRandomBtn
 };

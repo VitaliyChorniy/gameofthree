@@ -25,8 +25,14 @@ import {
     showLooseStatus,
     showWinStatus,
     hidePlayerConnected,
-    getMoveValue
+    getMoveValue,
+    showRandomBtn
 } from 'app/ui-controlls.js';
+
+import {
+    isRandomizerEnabled,
+    playRandomly
+} from 'app/randomizer.js';
 
 const CALL_INTERVAL = 3000;
 let waitingForFirstPlayer = false;
@@ -112,6 +118,7 @@ const pollForPlayerResponse = () => {
         if (result.playerResponce === 0) {
             hideWaitingForPlayerResponce();
             showLooseStatus();
+            hidePlayerResponce();
             return;
         }
         // if no responce number - poll API
@@ -130,6 +137,8 @@ const pollForPlayerResponse = () => {
                 hideWaitingForPlayerResponce();
                 showPlayerResponce(result.playerResponce);
                 showMoveControllsBlock();
+                showRandomBtn();
+                tryRandomPlay(result.playerResponce);
                 return;
             }
             // if the number is not changed - wait for change
@@ -147,6 +156,8 @@ const pollForPlayerResponse = () => {
                 hideWaitingForPlayerResponce();
                 showPlayerResponce(result.playerResponce);
                 showMoveControllsBlock();
+                showRandomBtn();
+                tryRandomPlay(result.playerResponce);
                 return;
             }
         }
@@ -205,13 +216,12 @@ const makeMove = (event) => {
     }).then(result => {
         // end game is server send playerWon=true
         if (result.playerWon) {
-            hidePlayerResponce();
             hideMoveControllsBlock();
             showWinStatus();
+            hidePlayerResponce();
             return;
         }
         sessionStorage.setItem('GOTnumber', result.playerResponce);
-        hidePlayerResponce();
         hideMoveControllsBlock();
         pollForPlayerResponse();
     });
@@ -236,6 +246,16 @@ const killSession = () => {
         method: 'POST'
     });
 };
+
+/*
+ * If user enabled rnadom play - play randomly
+ */
+const tryRandomPlay = playerResponce => {
+    if (isRandomizerEnabled()) {
+        showPlayerResponce(playerResponce);
+        playRandomly();
+    }
+}
 
 export {
     initPlayer,
