@@ -40,13 +40,11 @@ const CALL_INTERVAL = 3000;
 let waitingForFirstPlayer = false;
 
 function* pollAPI(apiUrl) {
-    while (true) { // eslint-disable-line
-        yield request({
-            url: apiUrl,
-            method: 'POST',
-            number: Number(sessionStorage.getItem('GOTnumber'))
-        });
-    }
+    yield request({
+        url: apiUrl,
+        method: 'POST',
+        number: Number(sessionStorage.getItem('GOTnumber'))
+    });
 }
 
 /*
@@ -235,13 +233,14 @@ const makeMove = (event) => {
  * Clear sessionStorage
  */
 const killSession = () => {
+    const playerId = sessionStorage.getItem('GOTPlayerId');
     sessionStorage.removeItem('GOTnumber');
     sessionStorage.removeItem('GOTPlayerId');
 
     return request({
         url: API.killSession,
         body: {
-            userId: sessionStorage.getItem('GOTPlayerId')
+            playerId: playerId,
         },
         headers: {
             'Content-Type': 'application/json',

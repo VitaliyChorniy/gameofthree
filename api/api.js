@@ -57,7 +57,12 @@ module.exports = (express) => {
     });
 
     api.post('/end-session', (req, res) => {
-        players = [];
+        const playerId = req.body.playerId;
+
+        waitingForPlayer = true;
+        secondPlayerReady = false;
+        players = players.filter(player => player.id !== playerId);
+        gameData.number = null;
 
         res.status(200).send({
             success: true
@@ -90,7 +95,6 @@ module.exports = (express) => {
             playerWon: playerWon
         });
     });
-
 
     return api;
 }

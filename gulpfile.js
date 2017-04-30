@@ -7,6 +7,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const webserver = require('gulp-webserver')
 const watch = require('gulp-watch');
 const eslint = require('gulp-eslint');
+const nodemon = require('gulp-nodemon');
 
 gulp.task('build-html', () => {
     return gulp.src(['web/src/**/*.html'])
@@ -45,18 +46,13 @@ gulp.task('copy-libs', () => {
 });
 
 gulp.task('serve', (done) => {
-    const nodemon = exec('nodemon');
-
-    nodemon.stdout.on('data', data => {
-        console.log('stdout: ' + data.toString());
-
-        // wait for nodemon to be ready to receive connections
-        if (data.toString().indexOf('Connected') >= 0) {
-            done();
+    nodemon({
+        script: 'api/server.js',
+        ext: 'js html',
+        env: {
+            'NODE_ENV': 'development'
         }
-    });
-    nodemon.stderr.on('data', (data) => console.log('stderr: ' + data.toString()));
-    nodemon.on('exit', (code) => console.log('start with code ' + code.toString()));
+    })
 });
 
 
