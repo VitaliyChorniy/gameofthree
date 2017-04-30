@@ -1,9 +1,11 @@
 import {
     API
 } from 'app/config.js';
+
 import {
     request
-} from 'app/request.js'
+} from 'app/request.js';
+
 import {
     showRunServerStatus,
     showWaitingForPlayer,
@@ -92,7 +94,7 @@ const pollStartGame = () => {
         if (result.secondPlayerReady) {
             hideWaitingForPlayer();
             showPlayerConnected();
-            hidePlayerConnected();
+            hidePlayerConnected(); // hide player connected msg after timeout
             // if current player is the player who starts the game (enter number)
             // else wait for second player to make his hit by polling pollForPlayerResponse
             if (result.playerIdToStart === Number(sessionStorage.getItem('GOTPlayerId'))) {
@@ -113,6 +115,7 @@ const pollStartGame = () => {
  */
 const pollForPlayerResponse = () => {
     const poller = pollAPI(API.playerResponce).next();
+
     poller.value.then((result) => {
         // 0 means that the player lost
         if (result.playerResponce === 0) {
